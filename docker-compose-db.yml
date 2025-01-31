@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  discord-db:
+    image: postgres:latest
+    container_name: discord-db-container
+    env_file:
+      - .env
+      - .env.override
+    ports:
+      - "${PUBLIC_POSTGRES_PORT}:5432"
+    networks:
+      - discord-network
+    volumes:
+      - discord_postgres_data:/var/lib/postgresql/data
+
+
+networks:
+  discord-network:
+    driver: bridge
+
+volumes:
+  discord_postgres_data:

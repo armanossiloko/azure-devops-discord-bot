@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<RootNamespace>Azure.Discord.Bot.Service</RootNamespace>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>..\..</DockerfileContext>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Discord.Net" Version="3.17.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="9.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="9.0.1" />
+		<PackageReference Include="Microsoft.TeamFoundationServer.Client" Version="19.225.1" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+		<PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+		<PackageReference Include="Serilog.Enrichers.ClientInfo" Version="2.1.2" />
+		<PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+		<PackageReference Include="Serilog.Enrichers.Process" Version="3.0.0" />
+		<PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
+		<PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.2.0" />
+		<PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="21.3.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Azure.Discord.Bot.DataAccess.Npgsql\Azure.Discord.Bot.DataAccess.Npgsql.csproj" />
+		<ProjectReference Include="..\Azure.Discord.Bot.DataAccess.Sqlite\Azure.Discord.Bot.DataAccess.Sqlite.csproj" />
+	</ItemGroup>
+
+</Project>

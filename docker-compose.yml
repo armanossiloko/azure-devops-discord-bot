@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  discord-db:
+    image: postgres:latest
+    container_name: discord-db-container
+    env_file:
+      - .env
+      - .env.override
+    ports:
+      - "${PUBLIC_POSTGRES_PORT}:5432"
+    networks:
+      - discord-network
+    volumes:
+      - discord_postgres_data:/var/lib/postgresql/data
+
+  azure-devops-discord-bot:
+    build:
+      context: .
+      dockerfile: Azure.Discord.Bot.Service/Dockerfile
+      args:
+        BUILD_CONFIGURATION: ${BUILD_CONFIGURATION}
+    container_name: azure-devops-discord-bot-container
+    env_file:
+      - .env
+      - .env.override
+    ports:
+      - "${PUBLIC_BOT_PORT}:8080"
+    networks:
+      - discord-network
+    depends_on:
+      - discord-db
+
+networks:
+  discord-network:
+    driver: bridge
+
+volumes:
+  discord_postgres_data:

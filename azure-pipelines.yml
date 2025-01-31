@@ -1,0 +1,89 @@
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- master
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  solution: '**/Azure.Discord.Bot.sln'
+  project: '**/Azure.Discord.Bot.Service.csproj'
+  buildConfiguration: 'Release'
+  buildOutput: '$(Build.ArtifactStagingDirectory)'
+
+steps:
+- task: UseDotNet@2
+  displayName: 'Install .NET 9 SDK'
+  inputs:
+    packageType: 'sdk'
+    version: '9.x'
+
+- checkout: self
+  displayName: 'Checkout repository'
+  submodules: true
+  persistCredentials: true
+
+- task: GetRevision@1
+  displayName: 'Get Latest Revision number'
+  inputs:
+    VariableName: Revision
+
+- script: |
+    echo "##vso[task.setvariable variable=yearMonthDay]$(date +'%Y.%m.%d')"
+  displayName: 'Create proper ProductVersion number'
+
+- script: |
+    echo "##vso[task.setvariable variable=productVersion]$(yearMonthDay).$(Revision)"
+  displayName: 'Set ProductVersion variable'
+
+# - script: |
+#     echo "##vso[task.setvariable variable=commitHash]$(Build.SourceVersion)"
+#     echo "##vso[task.setvariable variable=dateString]$(date +'%Y%m%d')"
+#     echo "##vso[task.setvariable variable=revNumber]$(Build.BuildId)"
+#   displayName: 'Get commit hash, date, and revision number'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: '$(solution)'
+    arguments: '--configuration $(buildConfiguration) -p:Version=$(productVersion) -p:AssemblyVersion=$(productVersion) -p:FileVersion=$(productVersion) -p:InformationalVersion=$(productVersion)'
+  name: 'DotnetBuild'
+  displayName: 'dotnet build $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
+    projects: '$(solution)'
+    arguments: '--configuration $(buildConfiguration) --filter "Category=UnitTest'
+  name: 'RunUnitTests'
+  displayName: 'Run unit tests'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
+    projects: '$(solution)'
+    arguments: '--configuration $(buildConfiguration) --filter "Category=IntegrationTest'
+  name: 'RunIntegrationTests'
+  displayName: 'Run integration tests'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: '$(project)'
+    arguments: '--no-build --configuration $(buildConfiguration) --output $(buildOutput)'
+  name: 'DotnetPublish'
+  displayName: 'dotnet publish'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(buildOutput)'
+    ArtifactName: 'ScalestarAPI'
+    publishLocation: 'Container'
+  name: 'PublishBuildArtifacts'
+  displayName: 'Publish Build Artifacts'
+
