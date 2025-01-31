@@ -1,3 +1,5 @@
+## NOTE: This was a personal project of mine that I started some time ago, but as life got busy, I stopped working on it - I decided to just publish it here in case someone may some day pick it up and perhaps finish it as I think it can come out helpful for some. I may or may not occasionally commit something here (though, unlikely).
+
 # Azure DevOps Discord Bot
 
 Azure DevOps Bot is a Discord bot built using .NET 9 that integrates with Azure DevOps to provide slash commands for interacting with backlog items, configuring organization links, and removing them. Additionally, the bot includes an API endpoint to send notifications about pull request creations directly to Discord channels.
