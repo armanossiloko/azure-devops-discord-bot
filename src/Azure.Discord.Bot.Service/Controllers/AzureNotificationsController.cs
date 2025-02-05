@@ -4,7 +4,6 @@ using Discord.WebSocket;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
-using System.Text.Json;
 
 namespace Azure.Discord.Bot.Service.Controllers;
 
@@ -27,7 +26,7 @@ public class AzureNotificationsController : ControllerBase
 	[HttpPost("pulls/created")]
 	[HttpPost("pulls/updated")]
 	[HttpPost("pulls/merged")]
-	public async Task<IActionResult> OnCreatedOrUpdated([FromBody] BaseAzureNotificationDTO<ResourceDTO> data)
+	public async Task<IActionResult> OnPullRequestCreatedOrUpdated([FromBody] BaseAzureNotificationDTO<ResourceDTO> data)
 	{
 		var orgUrl = data.ResourceContainers?.Account?.BaseUrl;
 		if (string.IsNullOrEmpty(orgUrl))
@@ -141,7 +140,7 @@ public class AzureNotificationsController : ControllerBase
 	}
 
 	[HttpPost("pulls/commented")]
-	public async Task<IActionResult> OnCommented([FromBody] BaseAzureNotificationDTO<ResourceDTO> data)
+	public async Task<IActionResult> OnPullRequestCommented([FromBody] BaseAzureNotificationDTO<ResourceDTO> data)
 	{
 		var orgUrl = data.ResourceContainers?.Account?.BaseUrl;
 		if (string.IsNullOrEmpty(orgUrl))
@@ -247,10 +246,86 @@ public class AzureNotificationsController : ControllerBase
 	}
 
 	[HttpPost("code/pushed")]
-	public IActionResult OnCodePushed([FromBody] object data)
+	public async Task<IActionResult> OnCodePushed([FromBody] BaseAzureNotificationDTO<ResourceDTO> data)
 	{
-		var json = JsonSerializer.Serialize(data);
-		System.IO.File.WriteAllText("OnCodePushed.json", json);
+		var orgUrl = data.ResourceContainers?.Account?.BaseUrl;
+		if (string.IsNullOrEmpty(orgUrl))
+		{
+			// For unsuccessful status codes, Azure auto-disables the web hook after N amount of time.
+			return Ok();
+		}
+
+		if (data.EventType != "git.push")
+		{
+			return BadRequest();
+		}
+
+		var subscriptions = await _context.Subscriptions
+			.Include(s => s.Organization)
+			.Include(s => s.Filter)
+			.Where(s => s.Organization!.OrganizationUrl == orgUrl && s.EventType == data.EventType)
+			.ToListAsync();
+
+		subscriptions.Add(new()
+		{
+			Id = data.Id,
+			EventType = data.EventType,
+		});
+
+		if (subscriptions.Count == 0)
+		{
+			// For unsuccessful status codes, Azure auto-disables the web hook after N amount of time.
+			return Ok();
+		}
+
+		var projectId = data.ResourceContainers?.Project?.Id;
+		var repositoryName = data.Resource.Repository?.Name;
+		var targetBranch = data.Resource.TargetRefName;
+		var reviewerNames = data.Resource.Reviewers?.Select(x => x.DisplayName).ToList() ?? [];
+
+		var subscriptionChannels = new List<ulong>();
+		foreach (var subscription in subscriptions)
+		{
+			if (subscription.Filter is not null)
+			{
+				if (subscription.Filter!.ProjectId is not null)
+				{
+					if (!subscription.Filter!.ProjectId.Equals(projectId))
+					{
+						continue;
+					}
+				}
+
+				if (subscription.Filter.RepositoryName is not null)
+				{
+					if (!subscription.Filter.RepositoryName.Equals(repositoryName))
+					{
+						continue;
+					}
+				}
+			}
+
+			subscriptionChannels.Add(subscription.ChannelId);
+		}
+
+		if (subscriptionChannels.Count == 0)
+		{
+			return NoContent();
+		}
+
+		var embed = new EmbedBuilder()
+			.WithDescription(data.Message?.Markdown ?? "")
+			.AddField("Link", $"{data.Resource.Url}")
+			.Build();
+
+		foreach (var subscriptionChannelId in subscriptionChannels.Distinct())
+		{
+			if (_client.GetChannel(subscriptionChannelId) is IMessageChannel channel)
+			{
+				await channel.SendMessageAsync(embed: embed);
+			}
+		}
+
 		return Ok();
 	}
 
