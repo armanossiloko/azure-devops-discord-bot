@@ -1,4 +1,5 @@
 ﻿using Azure.Discord.Bot.DataAccess;
+using Azure.Discord.Bot.Service.Attributes;
 using Azure.Discord.Bot.Service.Contracts;
 using Discord.WebSocket;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ namespace Azure.Discord.Bot.Service.Controllers;
 
 [ApiController]
 [Route("api/notifications")]
+[AzureHook]
 public class AzureNotificationsController : ControllerBase
 {
 	private readonly DiscordDbContext _context;
