@@ -115,7 +115,7 @@ public class InteractionModule : InteractionModuleBase<SocketInteractionContext>
 
 			try
 			{
-				workItems = await workItemTrackingClient.GetWorkItemsAsync(itemIds);
+				workItems = await workItemTrackingClient.GetWorkItemsAsync(itemIds, expand: WorkItemExpand.All);
 			}
 			catch (VssServiceException ex)
 			{
