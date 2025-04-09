@@ -18,7 +18,7 @@ public class AzureDevOpsEventTypesAutocompleteHandler : AutocompleteHandler
 		"git.pullrequest.updated",
 		// PR merge attempted
 		"git.pullrequest.merged",
-		// Commented on
+		// PR commented on
 		"ms.vss-code.git-pullrequest-comment-event",
 
 		//"build.created",
