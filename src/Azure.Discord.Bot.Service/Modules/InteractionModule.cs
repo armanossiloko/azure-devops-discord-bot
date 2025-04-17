@@ -31,10 +31,12 @@ public class InteractionModule : InteractionModuleBase<SocketInteractionContext>
 		string items,
 		[Summary(description: "Name of the organization to retrieve item details for.")]
 		[Autocomplete(typeof(LinkedOrganizationsAutocompleteHandler))]
-		string? organizationName = null
+		string? organizationName = null,
+		[Summary(description: "An optional comment to leave for the public to see alongside the embedded item.")]
+		string? message = null
 	)
 	{
-		return DisplayItemsDetailsAsync(items, organizationName);
+		return DisplayItemsDetailsAsync(items, organizationName, message);
 	}
 
 	[SlashCommand("display", "Send Azure DevOps items (epic, feature, bug, etc.) with their details to the channel.")]
@@ -43,7 +45,9 @@ public class InteractionModule : InteractionModuleBase<SocketInteractionContext>
 		string items,
 		[Summary(description: "Name of the organization to retrieve item details for.")]
 		[Autocomplete(typeof(LinkedOrganizationsAutocompleteHandler))]
-		string? organizationName = null
+		string? organizationName = null,
+		[Summary(description: "An optional comment to leave for the public to see alongside the embedded item.")]
+		string? message = null
 	)
 	{
 		try
@@ -180,7 +184,7 @@ public class InteractionModule : InteractionModuleBase<SocketInteractionContext>
 				}
 
 				var embed = builder.Build();
-				await FollowupAsync(embed: embed);
+				await FollowupAsync(text: message, embed: embed);
 			}
 		}
 		catch (Exception ex)
