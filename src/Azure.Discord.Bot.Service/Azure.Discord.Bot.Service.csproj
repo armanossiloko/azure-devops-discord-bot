@@ -27,8 +27,8 @@
 		<PackageReference Include="Serilog.Enrichers.Process" Version="3.0.0" />
 		<PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
 		<PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.0" />
-		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="8.1.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="8.1.1" />
 		<PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.13" />
 	</ItemGroup>
 
