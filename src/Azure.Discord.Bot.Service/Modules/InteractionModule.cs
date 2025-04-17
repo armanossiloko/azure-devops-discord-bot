@@ -137,7 +137,7 @@ public class InteractionModule : InteractionModuleBase<SocketInteractionContext>
 				}
 
 				var type = workItem.Fields["System.WorkItemType"].ToString();
-				var title = workItem.Fields["System.Title"].ToString();
+				var title = $"{workItem.Id} - {workItem.Fields["System.Title"]}";
 				var state = workItem.Fields["System.State"].ToString();
 				_ = workItem.Fields.TryGetValue("System.AssignedTo", out var assignedToValue);
 				var assignedTo = assignedToValue as IdentityRef;
